@@ -92,6 +92,13 @@ int main()
 	init_system();
     // fuses counter
     init_fuses();
+
+    if(boot_slot){
+        put_pixel(0x110011);
+    }else{
+        put_pixel(0x001100);
+    }
+    sleep_ms(1000);
     // LED & glitch & emmc PIO
     upload_pio();
     if (is_tiny())

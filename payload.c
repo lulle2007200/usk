@@ -543,6 +543,8 @@ bool update_firmware(uint32_t start_block, uint32_t size_blocks) {
             flash_range_erase(off, 0x1000);
         flash_range_program(off, data_buf, 0x200);
     }
+    put_pixel(0xff0000);
+    sleep_ms(1000);
     return true;
 }
 bool was_self_reset = false;
