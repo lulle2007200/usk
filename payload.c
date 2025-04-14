@@ -11,6 +11,7 @@
 #include "emmc.pio.h"
 #include "mmc_defs.h"
 #include "board_detect.h"
+#include "sdloader.h"
 
 #define SM_CLK 0
 #define SM_CMDIN 1
@@ -102,7 +103,7 @@ uint16_t payload_crc()
 {
     static int pay_crc = -1;
     if(pay_crc == -1)
-        pay_crc = crc_itu_t(0, payload, sizeof(payload));
+        pay_crc = crc_itu_t(0, sdloader_arr, sizeof(sdloader_arr));
     return pay_crc;
 }
 
@@ -725,7 +726,7 @@ void write_payload() {
         copy_bct(0x0, 0x7A0);
         copy_bct(0x20, 0x7C0);
     }
-    write_data(0x1F80, payload, sizeof(payload));
+    write_data(0x1F80, sdloader_arr, sizeof(sdloader_arr));
     write_data(0x0, data_bct, 0x2800);
     write_data(0x20, data_bct, 0x2800);
     write_descriptor();
