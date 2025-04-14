@@ -4,7 +4,7 @@
 #define OFFSET_MAX 6900
 
 #define VER_HI 3
-#define VER_LO 9
+#define VER_LO 10
 
 bool is_configured();
 void init_config();
