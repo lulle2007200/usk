@@ -13,10 +13,10 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
   
-      - name: Checkout rehius/usk
+      - name: Checkout lulle2007200/usk
         uses: actions/checkout@v3
         with:
-          repository: rehius/usk
+          repository: lulle2007200/usk
           path: usk
       
       - name: Checkout rehius/busk
