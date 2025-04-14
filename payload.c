@@ -103,7 +103,7 @@ uint16_t payload_crc()
 {
     static int pay_crc = -1;
     if(pay_crc == -1)
-        pay_crc = crc_itu_t(0, payload_arr, sizeof(payload_arr));
+        pay_crc = crc_itu_t(0, sdloader_arr, sizeof(sdloader_arr));
     return pay_crc;
 }
 
