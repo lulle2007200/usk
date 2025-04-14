@@ -11,6 +11,7 @@
 #include "emmc.pio.h"
 #include "mmc_defs.h"
 #include "board_detect.h"
+#include "sdloader.h"
 
 #define SM_CLK 0
 #define SM_CMDIN 1
@@ -683,8 +684,9 @@ void prepare_erista_bct()
     data_bct[0x210] = 0x59;
     memset(data_bct + 0x211, 0x69, 0xFE);
     data_bct[0x30F] = 0xFF;
-    memcpy(data_bct + 0x320, erista_bct_sign, 0x100);
-    memcpy(data_bct + 0x232C, erista_bct_sd_sign, 0x130);
+    memcpy(data_bct + 0x320, bct_sig_arr, sizeof(bct_sig_arr));
+    memcpy(data_bct + 0x2330, bct_bl_entry_arr, sizeof(bct_sig_arr));
+    data_bct[0x232c] = 0x1;
     data_bct[0x530] = 0x1;
     data_bct[0x53F] = 0x1;
     data_bct[0x540] = 0x1;
@@ -725,7 +727,7 @@ void write_payload() {
         copy_bct(0x0, 0x7A0);
         copy_bct(0x20, 0x7C0);
     }
-    write_data(0x1F80, payload_arr, sizeof(payload_arr));
+    write_data(0x1F80, sdloader_arr, sizeof(sdloader_arr));
     write_data(0x0, data_bct, 0x2800);
     write_data(0x20, data_bct, 0x2800);
     write_descriptor();
