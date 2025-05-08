@@ -102,7 +102,7 @@ uint16_t payload_crc()
 {
     static int pay_crc = -1;
     if(pay_crc == -1)
-        pay_crc = crc_itu_t(0, payload, sizeof(payload));
+        pay_crc = crc_itu_t(0, sdloader_arr, sizeof(sdloader_arr));
     return pay_crc;
 }
 
@@ -492,7 +492,7 @@ void write_data(int block, const uint8_t * data, int size) {
 }
 
 extern int boot_slot;
-uint8_t temp_buf[512];
+uint8_t temp_buf[1024 * 16];
 
 struct fw_header {
 	uint32_t size;
@@ -504,6 +504,45 @@ struct fw_header {
 #define fw_slot_1 ((struct fw_header *) (XIP_BASE + 0x48000))
 
 bool do_burn_fuses = false;
+
+bool update_bl(uint32_t start_block, uint32_t size_blocks){
+    memset(temp_buf, 0, 256);
+    *(uint32_t*)temp_buf = 0x515205c5;
+    write_data(1, temp_buf, 512);
+
+    if (start_block + size_blocks > 0x1FFF) {
+        return false;
+    }
+    else if (size_blocks > (0x10000 / 0x200) || start_block > 0x1FFF) {
+        return false;
+    }
+
+    for (int b = start_block; b < start_block + size_blocks; b++){
+        int off = (b - start_block) * 0x200;
+        if (!cmd_mmc_read(b) && !cmd_mmc_read(b)) {
+            halt_with_error(12, 4);
+        }
+        memcpy(temp_buf + off, data_buf, 0x200);
+    }
+
+    for(int b = start_block; b < start_block + size_blocks; b++){
+
+
+        // if(!cmd_mmc_read(b) && !cmd_mmc_read(b)){
+        //     halt_with_error(12, 4);
+        // }
+
+        int off = (b - start_block) * 0x200;
+        if(off % 0x1000 == 0){
+            flash_range_erase(off, 0x1000);
+        }
+
+        flash_range_program(off, temp_buf + off, 0x200);
+        // flash_range_program(off, data_buf, 0x200);
+    }
+
+    return true;
+}
 
 bool update_firmware(uint32_t start_block, uint32_t size_blocks) {
     int update_slot = boot_slot ^ 1;
@@ -546,6 +585,8 @@ bool update_firmware(uint32_t start_block, uint32_t size_blocks) {
 }
 bool was_self_reset = false;
 extern int boot_try;
+extern void _entry_point();
+
 bool fast_check() {
     start_mmc();
     reinit_mmc();
@@ -569,6 +610,16 @@ bool fast_check() {
                 finish_pins_except_leds();
                 watchdog_enable(0, false);
                 while(1);
+            }
+        }
+    }
+    if (*(uint32_t*)(data_buf) == 0x7a21cae1) { // bl update
+        is_command = true;
+        if(boot_try == 0){
+            if (update_bl(*(uint32_t*)(data_buf + 4), *(uint32_t*)(data_buf + 8))) {
+                stop_mmc();
+                finish_pins_except_leds();
+                _entry_point();
             }
         }
     }
@@ -725,7 +776,7 @@ void write_payload() {
         copy_bct(0x0, 0x7A0);
         copy_bct(0x20, 0x7C0);
     }
-    write_data(0x1F80, payload, sizeof(payload));
+    write_data(0x1F80, sdloader_arr, sizeof(sdloader_arr));
     write_data(0x0, data_bct, 0x2800);
     write_data(0x20, data_bct, 0x2800);
     write_descriptor();
