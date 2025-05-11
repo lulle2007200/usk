@@ -85,6 +85,7 @@ extern bool was_self_reset;
 int main()
 {
     // stop watchdog
+    gpio_disable_pulls(26);
     *(uint32_t*)(0x40058000 + 0x3000) = (1 << 30);
     // init reset, mosfet and LED
     detect_board();
