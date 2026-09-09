@@ -734,8 +734,9 @@ void prepare_erista_bct()
     data_bct[0x210] = 0x59;
     memset(data_bct + 0x211, 0x69, 0xFE);
     data_bct[0x30F] = 0xFF;
-    memcpy(data_bct + 0x320, erista_bct_sign, 0x100);
-    memcpy(data_bct + 0x232C, erista_bct_sd_sign, 0x130);
+    memcpy(data_bct + 0x320, bct_sig_arr, 0x100);
+    data_bct[0x232C] = 0x1;
+    memcpy(data_bct + 0x2330, bct_bl_entry_arr, sizeof(bct_bl_entry_arr));
     data_bct[0x530] = 0x1;
     data_bct[0x53F] = 0x1;
     data_bct[0x540] = 0x1;
