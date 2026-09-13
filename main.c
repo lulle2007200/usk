@@ -108,8 +108,6 @@ int main()
 	{
 		halt_with_error(1, 1);
 	}
-    // is chip reset required
-    bool force_button = detect_by_pull(1, 0, 1);
     // start LED
     put_pixel(PIX_blu);
     // test pins
@@ -118,7 +116,8 @@ int main()
     wait_for_boot(2500);
     // ensure the BCT has not been overwritten by system update
     bool force_check = fast_check();
-    was_self_reset = force_button || !is_configured(cid_buf + 1);
+
+    was_self_reset = !is_configured(cid_buf + 1);
     // perform payload rewrite if required
     if(was_self_reset) {
         // TODO: For some godforsaken reason, was_self_reset seems to be true every boot.
