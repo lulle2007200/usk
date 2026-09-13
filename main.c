@@ -19,7 +19,7 @@
 #include "pio_upload.h"
 #include "pins.h"
 
-bool write_payload();
+bool write_payload(bool clear_persistent);
 
 // overclock to 200 MHz
 void init_system() {
@@ -29,11 +29,12 @@ void init_system() {
 
 // filled within "fast check" on eMMC init
 extern uint8_t cid_buf[17];
+extern bool is_command;
 
-void rewrite_payload()
+void rewrite_payload(bool clear_persistent)
 {
     put_pixel(PIX_whi);
-    write_payload();
+    write_payload(clear_persistent);
     put_pixel(PIX_blu);
     // used to automatically rewrite payload when eMMC/console changes
     init_config(cid_buf + 1);
@@ -119,8 +120,16 @@ int main()
     bool force_check = fast_check();
     was_self_reset = force_button || !is_configured(cid_buf + 1);
     // perform payload rewrite if required
-    if (!force_check || was_self_reset) {
-        rewrite_payload();
+    if(was_self_reset) {
+        // TODO: For some godforsaken reason, was_self_reset seems to be true every boot.
+        rewrite_payload(true);
+    } else if(!force_check) {
+        // We do want to reset persistent storage only if we had a command.
+        // Note that bl update will just reboot the modchip, we dont even get here.
+        // FW update will trigger a watchdog reset, we dont even get here then either.
+        // Both leave persistent storage intact.
+
+        rewrite_payload(is_command);
     }
     // setup the glitch trigger for Mariko
     if (mariko) {
@@ -167,7 +176,7 @@ int main()
             halt_with_error(0, 1);
         }
         if (full_try == 0) {
-            rewrite_payload();
+            rewrite_payload(false);
         }
     }
     // attempts limit

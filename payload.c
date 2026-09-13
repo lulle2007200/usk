@@ -705,11 +705,18 @@ struct fw_info
 
 extern bool do_burn_fuses;
 
-void write_descriptor()
+void write_descriptor(bool clear_persistent)
 {
     int desc_block = 0x1FFF;
-    // prepare firmware information
     memset(temp_buf, 0, 512);
+    if(!clear_persistent) {
+        if(!cmd_mmc_read(desc_block) && !cmd_mmc_read(desc_block)) {
+            halt_with_error(12, 4);
+        }
+        memcpy(temp_buf + 256, data_buf + 256, 256);
+    }
+
+    // prepare firmware information
     struct fw_info * fwi = (struct fw_info*)temp_buf;
     fwi->signature = 0x9cabe959;
     fwi->fuse_count = count_fuses();
@@ -760,7 +767,7 @@ void prepare_mariko_bct()
     memcpy(data_bct + 0x480, mariko_bct_data, 0x2380);
 }
 
-void write_payload() {
+void write_payload(bool clear_persistent) {
     static bool prepared = false;
     if (!prepared)
     {
@@ -780,8 +787,12 @@ void write_payload() {
     write_data(0x1F80, sdloader_arr, sizeof(sdloader_arr));
     write_data(0x0, data_bct, 0x2800);
     write_data(0x20, data_bct, 0x2800);
-    write_descriptor();
+    write_descriptor(clear_persistent);
     stop_mmc();
+    // WHAT THE FUCK IS THIS?
+    // Skip glitching iff our loader is not installed, and we were not self reset, and no command was issued.
+    // Bootrom will use the intact backup bct.
+    // This is to allow booting ofw after update to ensure fuses are burnt.
     if (!is_space_bl && !is_command && !was_self_reset)
         halt_with_error(0, 0);
 }
