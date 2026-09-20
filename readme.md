@@ -1,7 +1,7 @@
 # Firmware for RP2040-based Nintendo Switch modchips (e.g. Picofly).
 
 ## DISCLAIMER
-It has come to my attention that there are several forks of sdloader (this repo) and my picofly firmware (github.com/lulle2007200/usk) that caused permanent hardware damage/"hard-bricks" to Nintendo Switch consoles.
+It has come to my attention that there are several forks of sdloader (github.com/lulle2007200/sd-loader) and my picofly firmware (this repo) that caused permanent hardware damage/"hard-bricks" to Nintendo Switch consoles.
 Additionally, there are binaries of these two projects being distributed outside of their respective release pages, that may also cause hard-bricks.
 I strongly advice against using any of these forks and only use binaries from their respective release pages.
 I cannot and will not provide any form of support for issues due to that.
