@@ -7,6 +7,7 @@ I strongly advice against using any of these forks and only use binaries from th
 I cannot and will not provide any form of support for issues due to that.
 
 If you do want a specific feature implemented, feel free to submit a PR or message me.
+Forking the project, adding superfluous changes and then bricking peoples consoles is not the way.
 
 As always, use at your own risk.
 
