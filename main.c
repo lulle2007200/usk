@@ -23,7 +23,7 @@ bool write_payload(bool clear_persistent);
 
 // overclock to 200 MHz
 void init_system() {
-    vreg_set_voltage(VREG_VOLTAGE_1_30);
+    vreg_set_voltage(VREG_VOLTAGE_1_15);
 	set_sys_clock_khz(200000, true);
 }
 
